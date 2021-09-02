@@ -8,10 +8,11 @@ dataJson = dict()
 urlData = dict()
 tokenDataApp = dict()
 tokenAccess = dict()
-
+token = dict()
 
 #  Variavel dict para armazenar o link da api e dados de acesso do token
-tokenDataApp['access_token'] = 'EAALxQPbRkCoBADQeDtaqZCZBapedEQIwX3x4ZBigaiZC5IZC8hTAPZATQyMM26wH6qsRDRx15BUopCduc3ZAno2xs7ZCe7jYDZCGLMub0Bv8SAwEeZA9DwJwlJIxcOXHutvZCaHFMmZCYF8Wowfnq0debtIBR46RqNLtkZAbIHU2IqFIYjWvxIs06QiMSzO6egOHvf9CephAWIUaTL1U2G5uqYCyvYEP3uZCtZBlqlZCsJtxRXURfMICqUeH7BSv0EYd9MGV0YIZD'
+tokenDataApp['client_secret'] = '5d1f8782732476667c42d5e811c62a92'
+tokenDataApp['access_token'] = 'EAALxQPbRkCoBAE45JlawHnqjwodXEIiV0Fm8JLBMxaPgZBVZAwa60uh3uFKFoqQNlzUC1ZBdAP40t6KcMeBAS7EdR8BeA7ZCydSDrw8lvgcwdgtyzgp878ZAaPnF0HkioWX47rRINLBaESiP8aPHXyIVzKKF9cyDozysofazSDCN1ZAk2uz1B00jV8oCvDwoyigrX96XnoWyjLfRhn6pZAjeeHjQQ2bjYqplCFzFUOhizIwK2M7ZCC1gLOA46XtAKkIZD'
 tokenDataApp['client_secret'] = '5d1f8782732476667c42d5e811c62a92'
 tokenDataApp['client_id'] = '828211274551338'
 tokenDataApp['debug'] = 'no'
@@ -32,15 +33,16 @@ def ChamandoApi(url, endpoint, debug='no'):
     if debug == 'yes':
         expira = int(dadosGetUrl['parser']['expires_in'])
         expira = (expira / 86400)
-        print(int(expira))
-        print(f"url: {dadosGetUrl['url']}\nEndpoint: {dadosGetUrl['endpoint_params_pretty']}\nDias ate o token Api expirar: {int(expira)}")
+        print(int(expira), ' :Dias\n')
+        print(
+            f"url: {dadosGetUrl['url']}\nEndpoint: {dadosGetUrl['endpoint_params_pretty']}\nDias ate o token Api expirar: {int(expira)} Dias\n")
     return dadosGetUrl
 
 
 #  Get do link de acesso a api e retorno em json da resposta parseada
-url = f"{tokenDataApp['endpoint_base']}oauth/access_token?client_id={tokenDataApp['client_id']}&client_secret={tokenDataApp['client_secret']}&grant_type=client_credentials "
+'''url = f"{tokenDataApp['endpoint_base']}oauth/access_token?client_id={tokenDataApp['client_id']}&client_secret={tokenDataApp['client_secret']}&grant_type=client_credentials "
 tokenAccess['get_page'] = requests.get(url)
-tokenAccess['parser'] = json.loads(tokenAccess['get_page'].content)
+tokenAccess['parser'] = json.loads(tokenAccess['get_page'].content)'''
 
 
 # Requisitando token de longa vida
@@ -54,18 +56,28 @@ def GetAccessToken():
     ChamandoApi(url, endpoint, debug='yes')
     return endpoint
 
+
 # retorna funcao
+search = dict()
+
+
 def Search():
-    search = dict()
+    global search
     endpoint = GetAccessToken()  # instanciando a def para torna usavel a variavel enpoint
-    search['fields'] = 'me?fields=email,first_name,last_name,languages,friends,likes{engagement,fan_count},birthday,posts{link,is_popular,message},feed{comments}&' + 'access_token='
-    search['url'] = tokenDataApp['endpoint_base'] + search['fields'] +tokenDataApp['access_token']
+    search['fields'] = 'me?fields=email,first_name,last_name,languages,friends,likes{engagement,fan_count},birthday,posts.limit(50){link,is_popular,message},feed{comments}&' + 'access_token='  # urn retorna json das pesquisas
+    search['url'] = tokenDataApp['endpoint_base'] + search['fields'] + tokenDataApp['access_token']
     search['request'] = requests.get(search['url'], params=endpoint)
     search['parser'] = json.loads(search['request'].content)
     search['json_data_pretty'] = json.dumps(search['parser'], indent=4)
-    print(search['json_data_pretty'])
     return search
 
+
 if __name__ == '__main__':
-    print('-'*5, ' Dados da conta abaixo ', '-'*5)
-Search()
+    print('-' * 5, ' Dados da conta abaixo ', '-' * 5)
+    attToken = GetAccessToken()['fb_exchange_token']
+    tokenDataApp['access_token'] = attToken
+
+    print(Search()['json_data_pretty'])
+
+
+#  https://www.facebook.com/trapflacko/videos/183274686837819/
